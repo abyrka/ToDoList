@@ -1,19 +1,11 @@
 const express = require("express");
-const models = require("../utils/models");
+const ToDoItem = require("../models/toDoItem");
 
 const router = express.Router();
-const ToDoItem = models.ToDoItem;
 const successStatusCode = 200;
 const notFoundStatusCode = 404;
 
-router.get("/getList/:userId", function (req, res) {
-  const userId = req.params.userId;
-  ToDoItem.find({ userId: userId }).then(function (doc) {
-    res.json(doc);
-  });
-});
-
-router.post("/insert", function (req, res) {
+router.post("/create", function (req, res) {
   const item = {
     text: req.body.text,
     complete: false,
@@ -25,7 +17,7 @@ router.post("/insert", function (req, res) {
   res.send(data._id);
 });
 
-router.post("/update", function (req, res) {
+router.put("/update", function (req, res) {
   const id = req.body.id;
 
   ToDoItem.findById(id, function (err, doc) {
@@ -39,18 +31,18 @@ router.post("/update", function (req, res) {
   });
 });
 
-router.post("/delete", function (req, res) {
+router.delete("/delete", function (req, res) {
   const id = req.body.id;
   ToDoItem.findByIdAndRemove(id).exec();
   res.sendStatus(successStatusCode);
 });
 
-router.post("/complete", function (req, res) {
+router.put("/complete", function (req, res) {
   const id = req.body.id;
 
   ToDoItem.findById(id, function (err, doc) {
     if (!err && doc) {
-      doc.complete = true;
+      doc.complete = req.body.complete;
       doc.save();
       res.sendStatus(successStatusCode);
     } else {

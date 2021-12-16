@@ -1,8 +1,15 @@
 const createError = require("http-errors");
 const express = require("express");
+const mongoose = require("mongoose");
 
 const toDoItem = require("./routes/toDoItem");
 const user = require("./routes/user");
+
+const mongoDbUrl = "mongodb://localhost/ToDoList";
+mongoose.connect(mongoDbUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const notFoundStatusCode = 404;
 const internalServerErrorStatusCode = 500;
@@ -21,6 +28,7 @@ app.use(function (req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
 
