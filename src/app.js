@@ -2,6 +2,7 @@ const createError = require("http-errors");
 const express = require("express");
 const mongoose = require("mongoose");
 
+const file = require("./routes/file");
 const toDoItem = require("./routes/toDoItem");
 const user = require("./routes/user");
 
@@ -32,6 +33,7 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use("/file", file);
 app.use("/to-do-list", toDoItem);
 app.use("/user", user);
 
