@@ -5,8 +5,47 @@ const { Readable } = require("stream");
 
 const File = require("../models/file");
 
+const Types = mongoose.Types;
 const router = express.Router();
 
+/**
+ * GET /file/:fileId
+ */
+router.get("/:fileId", (req, res) => {
+  let fileId;
+  try {
+    fileId = new Types.ObjectId(req.params.fileId);
+  } catch (err) {
+    return res.status(400).json({
+      message:
+        "Invalid fileId in URL parameter. Must be a single String of 12 bytes or a string of 24 hex characters",
+    });
+  }
+  res.set("content-type", "application/octet-stream");
+  res.set("accept-ranges", "bytes");
+
+  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+    bucketName: "FileStorage",
+  });
+
+  const downloadStream = bucket.openDownloadStream(fileId);
+
+  downloadStream.on("data", (chunk) => {
+    res.write(chunk);
+  });
+
+  downloadStream.on("error", () => {
+    res.sendStatus(404);
+  });
+
+  downloadStream.on("end", () => {
+    res.end();
+  });
+});
+
+/**
+ * POST /file/upload
+ */
 router.post("/upload", function (req, res) {
   const storage = multer.memoryStorage();
   const upload = multer({

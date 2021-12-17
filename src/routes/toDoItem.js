@@ -5,6 +5,9 @@ const router = express.Router();
 const successStatusCode = 200;
 const notFoundStatusCode = 404;
 
+/**
+ * POST /to-do-list/create
+ */
 router.post("/create", function (req, res) {
   const item = {
     text: req.body.text,
@@ -17,6 +20,9 @@ router.post("/create", function (req, res) {
   res.send(data._id);
 });
 
+/**
+ * PUT /to-do-list/update
+ */
 router.put("/update", function (req, res) {
   const id = req.body.id;
 
@@ -31,12 +37,18 @@ router.put("/update", function (req, res) {
   });
 });
 
+/**
+ * POST /to-do-list/delete
+ */
 router.delete("/delete", function (req, res) {
   const id = req.body.id;
   ToDoItem.findByIdAndRemove(id).exec();
   res.sendStatus(successStatusCode);
 });
 
+/**
+ * PUT /to-do-list/complete
+ */
 router.put("/complete", function (req, res) {
   const id = req.body.id;
 

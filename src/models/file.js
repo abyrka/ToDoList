@@ -9,11 +9,11 @@ const fileSchema = new Schema(
       required: true,
     },
     itemId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     fileId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
   },
