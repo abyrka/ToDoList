@@ -1,9 +1,20 @@
 const express = require("express");
+const File = require("../models/file");
 const ToDoItem = require("../models/toDoItem");
 
 const router = express.Router();
 const successStatusCode = 200;
 const notFoundStatusCode = 404;
+
+/**
+ * GET /to-do-list/:itemId/files
+ */
+router.get("/:itemId/files", function (req, res) {
+  const itemId = req.params.itemId;
+  File.find({ itemId: itemId }).then(function (doc) {
+    res.json(doc);
+  });
+});
 
 /**
  * POST /to-do-list/create

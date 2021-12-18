@@ -21,25 +21,32 @@ router.get("/:fileId", (req, res) => {
         "Invalid fileId in URL parameter. Must be a single String of 12 bytes or a string of 24 hex characters",
     });
   }
-  res.set("content-type", "application/octet-stream");
-  res.set("accept-ranges", "bytes");
 
-  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: "FileStorage",
-  });
+  File.findOne({ _id: fileId }).then(function (doc) {
+    if (!doc) {
+      return res.sendStatus(404);
+    }
 
-  const downloadStream = bucket.openDownloadStream(fileId);
+    res.set("content-type", "application/octet-stream");
+    res.set("accept-ranges", "bytes");
 
-  downloadStream.on("data", (chunk) => {
-    res.write(chunk);
-  });
+    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+      bucketName: "FileStorage",
+    });
 
-  downloadStream.on("error", () => {
-    res.sendStatus(404);
-  });
+    const downloadStream = bucket.openDownloadStream(doc.fileId);
 
-  downloadStream.on("end", () => {
-    res.end();
+    downloadStream.on("data", (chunk) => {
+      res.write(chunk);
+    });
+
+    downloadStream.on("error", () => {
+      res.sendStatus(404);
+    });
+
+    downloadStream.on("end", () => {
+      res.end();
+    });
   });
 });
 
