@@ -4,6 +4,12 @@ const { StatusCodes } = require("http-status-codes");
 const File = require("../models/file");
 const ToDoItem = require("../models/toDoItem");
 
+const {
+  getItemFilesKey,
+  getUserToDoItemsKey,
+} = require("../utils/cacheKeyGenerator");
+const { clearCache } = require("../utils/cache");
+
 const router = express.Router();
 
 /**
@@ -11,9 +17,11 @@ const router = express.Router();
  */
 router.get("/:itemId/files", function (req, res) {
   const itemId = req.params.itemId;
-  File.find({ itemId: itemId }).then(function (doc) {
-    res.json(doc);
-  });
+  File.find({ itemId: itemId })
+    .cache({ key: getItemFilesKey(itemId) })
+    .then(function (doc) {
+      res.json(doc);
+    });
 });
 
 /**
@@ -28,6 +36,8 @@ router.post("/create", function (req, res) {
 
   const data = new ToDoItem(item);
   data.save();
+
+  clearCache(getUserToDoItemsKey(req.body.userId));
   res.send(data._id);
 });
 

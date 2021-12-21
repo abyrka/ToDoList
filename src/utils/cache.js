@@ -6,6 +6,8 @@ const { redisUrl } = require("../constants/urls");
 
 const client = redis.createClient(redisUrl);
 
+const defaultExpireTime = 60;
+
 function initCacheClient() {
   client.hget = util.promisify(client.hget);
 
@@ -13,7 +15,9 @@ function initCacheClient() {
   const exec = mongoose.Query.prototype.exec;
 
   // create new cache function on prototype
-  mongoose.Query.prototype.cache = function (options = { expire: 60 }) {
+  mongoose.Query.prototype.cache = function (
+    options = { expire: defaultExpireTime }
+  ) {
     this.useCache = true;
     this.expire = options.expire;
     this.hashKey = JSON.stringify(options.key || this.mongooseCollection.name);
@@ -39,7 +43,7 @@ function initCacheClient() {
     if (!cacheValue) {
       const result = await exec.apply(this, arguments);
       client.hset(this.hashKey, key, JSON.stringify(result));
-      client.expire(this.hashKey, this.expire);
+      client.expire(this.hashKey, this.expire || defaultExpireTime);
 
       console.log("Return data from MongoDB");
       return result;
@@ -55,6 +59,7 @@ function initCacheClient() {
 }
 
 function clearCache(hashKey) {
+  console.log(`Clear data from Redis; key ${this.hashKey}`);
   client.del(JSON.stringify(hashKey));
 }
 
