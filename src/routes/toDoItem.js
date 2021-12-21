@@ -1,10 +1,10 @@
 const express = require("express");
+const { StatusCodes } = require("http-status-codes");
+
 const File = require("../models/file");
 const ToDoItem = require("../models/toDoItem");
 
 const router = express.Router();
-const successStatusCode = 200;
-const notFoundStatusCode = 404;
 
 /**
  * GET /to-do-list/:itemId/files
@@ -41,9 +41,9 @@ router.put("/update", function (req, res) {
     if (!err && doc) {
       doc.text = req.body.text;
       doc.save();
-      res.sendStatus(successStatusCode);
+      res.sendStatus(StatusCodes.OK);
     } else {
-      res.sendStatus(notFoundStatusCode);
+      res.sendStatus(StatusCodes.NOT_FOUND);
     }
   });
 });
@@ -54,7 +54,7 @@ router.put("/update", function (req, res) {
 router.delete("/delete", function (req, res) {
   const id = req.body.id;
   ToDoItem.findByIdAndRemove(id).exec();
-  res.sendStatus(successStatusCode);
+  res.sendStatus(StatusCodes.OK);
 });
 
 /**
@@ -67,9 +67,9 @@ router.put("/complete", function (req, res) {
     if (!err && doc) {
       doc.complete = req.body.complete;
       doc.save();
-      res.sendStatus(successStatusCode);
+      res.sendStatus(StatusCodes.OK);
     } else {
-      res.sendStatus(notFoundStatusCode);
+      res.sendStatus(StatusCodes.NOT_FOUND);
     }
   });
 });

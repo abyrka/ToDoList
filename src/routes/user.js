@@ -9,9 +9,11 @@ const router = express.Router();
  * GET /user/list
  */
 router.get("/list", function (req, res) {
-  User.find().then(function (doc) {
-    res.json(doc);
-  });
+  User.find()
+    .cache()
+    .then(function (doc) {
+      res.json(doc);
+    });
 });
 
 /**

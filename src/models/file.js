@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const collections = require("../constants/collections");
+
 const Schema = mongoose.Schema;
 
 const fileSchema = new Schema(
@@ -18,10 +20,10 @@ const fileSchema = new Schema(
     },
   },
   {
-    collection: "File",
+    collection: collections.File,
   }
 );
 
-const File = mongoose.model("File", fileSchema);
+const File = mongoose.model(collections.File, fileSchema);
 
 module.exports = File;

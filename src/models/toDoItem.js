@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const collections = require("../constants/collections");
+
 const Schema = mongoose.Schema;
 
 const toDoItemSchema = new Schema(
@@ -18,10 +20,10 @@ const toDoItemSchema = new Schema(
     },
   },
   {
-    collection: "ToDoItem",
+    collection: collections.ToDoItem,
   }
 );
 
-const ToDoItem = mongoose.model("ToDoItem", toDoItemSchema);
+const ToDoItem = mongoose.model(collections.ToDoItem, toDoItemSchema);
 
 module.exports = ToDoItem;

@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const { Readable } = require("stream");
+const { StatusCodes } = require("http-status-codes");
+
+const collections = require("../constants/collections");
 
 const File = require("../models/file");
 
@@ -16,7 +19,7 @@ router.get("/:fileId", (req, res) => {
   try {
     fileId = new Types.ObjectId(req.params.fileId);
   } catch (err) {
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       message:
         "Invalid fileId in URL parameter. Must be a single String of 12 bytes or a string of 24 hex characters",
     });
@@ -24,14 +27,14 @@ router.get("/:fileId", (req, res) => {
 
   File.findOne({ _id: fileId }).then(function (doc) {
     if (!doc) {
-      return res.sendStatus(404);
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     res.set("content-type", "application/octet-stream");
     res.set("accept-ranges", "bytes");
 
     const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-      bucketName: "FileStorage",
+      bucketName: collections.FileStorage,
     });
 
     const downloadStream = bucket.openDownloadStream(doc.fileId);
@@ -41,7 +44,7 @@ router.get("/:fileId", (req, res) => {
     });
 
     downloadStream.on("error", () => {
-      res.sendStatus(404);
+      res.sendStatus(StatusCodes.NOT_FOUND);
     });
 
     downloadStream.on("end", () => {
@@ -62,11 +65,11 @@ router.post("/upload", function (req, res) {
   upload.single("file")(req, res, (err) => {
     if (err) {
       return res
-        .status(400)
+        .status(StatusCodes.BAD_REQUEST)
         .json({ message: "Upload Request Validation Failed" });
     } else if (!req.body.itemId) {
       return res
-        .status(400)
+        .status(StatusCodes.BAD_REQUEST)
         .json({ message: "No to do item id in request body" });
     }
 
@@ -77,7 +80,7 @@ router.post("/upload", function (req, res) {
     readableFileStream.push(null);
 
     const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-      bucketName: "FileStorage",
+      bucketName: collections.FileStorage,
     });
 
     const uploadStream = bucket.openUploadStream(fileName);
@@ -85,7 +88,9 @@ router.post("/upload", function (req, res) {
     readableFileStream.pipe(uploadStream);
 
     uploadStream.on("error", () => {
-      return res.status(500).json({ message: "Error uploading file" });
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Error uploading file" });
     });
 
     uploadStream.on("finish", () => {

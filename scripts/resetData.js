@@ -1,15 +1,18 @@
 const mongoose = require("mongoose");
 
+const { mongoDbUrl } = require("../src/constants/urls");
+const collections = require("../src/constants/collections");
+
 const File = require("../src/models/file");
 const ToDoItem = require("../src/models/toDoItem");
 const User = require("../src/models/user");
 
 (async () => {
   try {
-    console.log("reset-data");
+    console.log("Reset data");
 
-    const mongoDbUrl = "mongodb://localhost/ToDoList";
     mongoose.connect(mongoDbUrl, {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -40,11 +43,11 @@ const User = require("../src/models/user");
 
 async function deleteAllFiles() {
   const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: "FileStorage",
+    bucketName: collections.FileStorage,
   });
   const documents = await bucket.find().toArray();
   if (documents.length === 0) {
-    throw new Error("FileNotFound");
+    return;
   }
   return Promise.all(
     documents.map((doc) => {
