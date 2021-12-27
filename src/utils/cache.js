@@ -45,7 +45,7 @@ function initCacheClient() {
       client.hset(this.hashKey, key, JSON.stringify(result));
       client.expire(this.hashKey, this.expire || defaultExpireTime);
 
-      console.log("Return data from MongoDB");
+      console.log(`Return data from MongoDB; key ${this.hashKey}`);
       return result;
     }
 
@@ -59,11 +59,21 @@ function initCacheClient() {
 }
 
 function clearCache(hashKey) {
-  console.log(`Clear data from Redis; key ${this.hashKey}`);
+  console.log(`Clear data from Redis; key ${hashKey}`);
   client.del(JSON.stringify(hashKey));
+}
+
+function clearAllCache() {
+  console.log("Clear all data from Redis");
+  client.flushdb(function (err) {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 
 module.exports = {
   initCacheClient,
   clearCache,
+  clearAllCache,
 };

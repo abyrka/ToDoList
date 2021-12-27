@@ -1,9 +1,9 @@
 const userListKey = "user_list";
 const getUserToDoItemsKey = (userId) => `user_${userId}_todo_items`;
-const getItemFilesKey = (itemId) => `itemId_${itemId}_files`;
+const getItemAttachmentsKey = (itemId) => `itemId_${itemId}_attachments`;
 
 module.exports = {
   userListKey,
   getUserToDoItemsKey,
-  getItemFilesKey,
+  getItemAttachmentsKey,
 };

@@ -4,7 +4,7 @@ const collections = require("../constants/collections");
 
 const Schema = mongoose.Schema;
 
-const fileSchema = new Schema(
+const attachmentSchema = new Schema(
   {
     name: {
       type: String,
@@ -20,10 +20,10 @@ const fileSchema = new Schema(
     },
   },
   {
-    collection: collections.File,
+    collection: collections.Attachment,
   }
 );
 
-const File = mongoose.model(collections.File, fileSchema);
+const Attachment = mongoose.model(collections.Attachment, attachmentSchema);
 
-module.exports = File;
+module.exports = Attachment;

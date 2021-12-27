@@ -1,5 +1,5 @@
 const collections = {
-  File: "File",
+  Attachment: "Attachment",
   FileStorage: "FileStorage",
   ToDoItem: "ToDoItem",
   User: "User",

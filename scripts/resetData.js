@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 
 const { mongoDbUrl } = require("../src/constants/urls");
 const collections = require("../src/constants/collections");
+const { clearAllCache } = require("../src/utils/cache");
 
-const File = require("../src/models/file");
+const Attachment = require("../src/models/attachment");
 const ToDoItem = require("../src/models/toDoItem");
 const User = require("../src/models/user");
 
@@ -18,12 +19,15 @@ const User = require("../src/models/user");
     });
 
     console.log("-- clear collection");
-    await File.deleteMany({});
+    await Attachment.deleteMany({});
     await ToDoItem.deleteMany({});
     await User.deleteMany({});
 
-    console.log("-- clear bucket with files");
+    console.log("-- clear bucket with attachments");
     await deleteAllFiles();
+
+    console.log("-- clear redis cache");
+    clearAllCache();
 
     console.log("-- create user");
     const userData = new User({ login: "Mark" });

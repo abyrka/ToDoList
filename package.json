@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/main.js",
     "reset-data": "node scripts/resetData.js",
+    "start-redis": "redis-server",
     "lint": "eslint . --ext js --ignore-path .gitignore"
   },
   "repository": {

@@ -1,11 +1,11 @@
 const express = require("express");
 const { StatusCodes } = require("http-status-codes");
 
-const File = require("../models/file");
+const Attachment = require("../models/attachment");
 const ToDoItem = require("../models/toDoItem");
 
 const {
-  getItemFilesKey,
+  getItemAttachmentsKey,
   getUserToDoItemsKey,
 } = require("../utils/cacheKeyGenerator");
 const { clearCache } = require("../utils/cache");
@@ -13,12 +13,12 @@ const { clearCache } = require("../utils/cache");
 const router = express.Router();
 
 /**
- * GET /to-do-list/:itemId/files
+ * GET /to-do-list/:itemId/attachments
  */
-router.get("/:itemId/files", function (req, res) {
+router.get("/:itemId/attachments", function (req, res) {
   const itemId = req.params.itemId;
-  File.find({ itemId: itemId })
-    .cache({ key: getItemFilesKey(itemId) })
+  Attachment.find({ itemId: itemId })
+    .cache({ key: getItemAttachmentsKey(itemId) })
     .then(function (doc) {
       res.json(doc);
     });
@@ -36,7 +36,6 @@ router.post("/create", function (req, res) {
 
   const data = new ToDoItem(item);
   data.save();
-
   clearCache(getUserToDoItemsKey(req.body.userId));
   res.send(data._id);
 });
@@ -51,6 +50,7 @@ router.put("/update", function (req, res) {
     if (!err && doc) {
       doc.text = req.body.text;
       doc.save();
+      clearCache(getUserToDoItemsKey(req.body.userId));
       res.sendStatus(StatusCodes.OK);
     } else {
       res.sendStatus(StatusCodes.NOT_FOUND);
@@ -64,6 +64,7 @@ router.put("/update", function (req, res) {
 router.delete("/delete", function (req, res) {
   const id = req.body.id;
   ToDoItem.findByIdAndRemove(id).exec();
+  clearCache(getUserToDoItemsKey(req.body.userId));
   res.sendStatus(StatusCodes.OK);
 });
 
@@ -77,6 +78,7 @@ router.put("/complete", function (req, res) {
     if (!err && doc) {
       doc.complete = req.body.complete;
       doc.save();
+      clearCache(getUserToDoItemsKey(req.body.userId));
       res.sendStatus(StatusCodes.OK);
     } else {
       res.sendStatus(StatusCodes.NOT_FOUND);
