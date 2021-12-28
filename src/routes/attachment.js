@@ -8,6 +8,9 @@ const collections = require("../constants/collections");
 
 const Attachment = require("../models/attachment");
 
+const { getItemAttachmentsKey } = require("../utils/cacheKeyGenerator");
+const { clearCache } = require("../utils/cache");
+
 const Types = mongoose.Types;
 const router = express.Router();
 
@@ -17,7 +20,7 @@ const router = express.Router();
 router.get("/:id", (req, res) => {
   let attachmentId;
   try {
-    attachmentId = new Types.ObjectId(req.params.attachmentId);
+    attachmentId = new Types.ObjectId(req.params.id);
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message:
@@ -63,7 +66,8 @@ router.delete("/delete", function (req, res) {
   Attachment.findById(id, function (err, doc) {
     if (!err && doc) {
       deleteFile(doc.fileId);
-      Attachment.remove(id).exec();
+      Attachment.findByIdAndRemove(id).exec();
+      clearCache(getItemAttachmentsKey(doc.itemId));
       res.sendStatus(StatusCodes.OK);
     } else {
       res.sendStatus(StatusCodes.NOT_FOUND);
@@ -122,6 +126,7 @@ router.post("/upload", function (req, res) {
         itemId: req.body.itemId,
       });
       data.save();
+      clearCache(getItemAttachmentsKey(req.body.itemId));
       res.send(data._id);
     });
   });
@@ -131,15 +136,7 @@ async function deleteFile(id) {
   const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
     bucketName: collections.FileStorage,
   });
-  const documents = await bucket.find(id).toArray();
-  if (documents && documents.length === 0) {
-    return;
-  }
-  return Promise.all(
-    documents.map((doc) => {
-      return bucket.delete(doc._id);
-    })
-  );
+  return bucket.delete(id);
 }
 
 module.exports = router;

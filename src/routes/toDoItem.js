@@ -50,7 +50,7 @@ router.put("/update", function (req, res) {
     if (!err && doc) {
       doc.text = req.body.text;
       doc.save();
-      clearCache(getUserToDoItemsKey(req.body.userId));
+      clearCache(getUserToDoItemsKey(doc.userId));
       res.sendStatus(StatusCodes.OK);
     } else {
       res.sendStatus(StatusCodes.NOT_FOUND);
@@ -63,9 +63,15 @@ router.put("/update", function (req, res) {
  */
 router.delete("/delete", function (req, res) {
   const id = req.body.id;
-  ToDoItem.findByIdAndRemove(id).exec();
-  clearCache(getUserToDoItemsKey(req.body.userId));
-  res.sendStatus(StatusCodes.OK);
+  ToDoItem.findById(id, function (err, doc) {
+    if (!err && doc) {
+      ToDoItem.findByIdAndRemove(id).exec();
+      clearCache(getUserToDoItemsKey(doc.userId));
+      res.sendStatus(StatusCodes.OK);
+    } else {
+      res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+  });
 });
 
 /**
@@ -78,7 +84,7 @@ router.put("/complete", function (req, res) {
     if (!err && doc) {
       doc.complete = req.body.complete;
       doc.save();
-      clearCache(getUserToDoItemsKey(req.body.userId));
+      clearCache(getUserToDoItemsKey(doc.userId));
       res.sendStatus(StatusCodes.OK);
     } else {
       res.sendStatus(StatusCodes.NOT_FOUND);
